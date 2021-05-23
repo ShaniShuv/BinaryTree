@@ -115,3 +115,38 @@ TEST_CASE("updating data checking ")
     ++it;
     CHECK('z' == (*it));
 }
+
+TEST_CASE("defult- end() begin() checking ")
+{
+    auto it=bt.begin(); 
+    CHECK('c' == (*it));
+    ++it;
+    CHECK('b' == (*it));
+    ++it;
+    CHECK('e' == (*it));
+    ++it;
+    CHECK('d' == (*it));
+    ++it;
+    CHECK('f' == (*it));
+    ++it;
+    CHECK('a' == (*it));
+    ++it;
+    CHECK('g' == (*it));
+    ++it;
+    CHECK('h' == (*it));
+  
+}
+TEST_CASE("updating data checking ")
+{
+    bt.add_root('x');
+    bt.add_left('x', 'y');
+    bt.add_right('y', 'z');
+    auto it=bt.begin_preorder(); 
+    CHECK('x' == (*it));
+    ++it;
+    CHECK('y' == (*it));
+    ++it;
+    CHECK('c' == (*it));
+    ++it;
+    CHECK('z' == (*it));
+}
