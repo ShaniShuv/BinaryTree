@@ -1,16 +1,7 @@
-#include <cmath>
 #include "doctest.h"
 #include "BinaryTree.hpp"
 #include <cstdlib>
 #include <ctime>
-#include <string>
-#include <fstream>
-#include <map>
-#include <string>
-#include <iostream>
-#include <sstream>
-#include <exception>
-#include <stdexcept>
 using namespace std;
 using namespace ariel;
 /*
@@ -100,20 +91,6 @@ TEST_CASE("in checking ")
     ++it;
     CHECK('h' == (*it));
   
-}
-TEST_CASE("updating data checking ")
-{
-    bt.add_root('x');
-    bt.add_left('x', 'y');
-    bt.add_right('y', 'z');
-    auto it=bt.begin_preorder(); 
-    CHECK('x' == (*it));
-    ++it;
-    CHECK('y' == (*it));
-    ++it;
-    CHECK('c' == (*it));
-    ++it;
-    CHECK('z' == (*it));
 }
 
 TEST_CASE("defult- end() begin() checking ")
