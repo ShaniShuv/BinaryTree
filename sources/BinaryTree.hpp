@@ -5,329 +5,316 @@
 #include <map>
 #include <queue>
 #include <iostream>
-
+const int PRE = 0;
+const int POST = 1;
+const int IN = 2;
 int ad = 0;
 // to delete:
 using namespace std;
 
- namespace ariel{
-template<typename T>
-class BinaryTree {
+namespace ariel{
+	template<typename T>
+	class BinaryTree {
 
-public:
-	class node {
 		public:
-			T _data; node *  _father,*_lc,* _rc;
-			node(node* f,  T d) : _father(f), _data(d), _lc(nullptr), _rc(nullptr){}
-			~node() { // delete children
-				if(!_lc) delete _lc;
-				if(!_rc) delete _rc;
-			}
-	};
+			class node {
+            public:
+                T _data; node *  _father,*_lc,* _rc;
+                node(node* f,  T d) : _father(f), _data(d), _lc(nullptr), _rc(nullptr){}
+                node(const node& other)noexcept{}
+				node(node&& other)noexcept{}
+				node& operator=(const node n){
+					if(this != n){
+						this->_data = n._data;
+					}
+					return *this;
+				}
+				node &operator=(node &&n) noexcept{
+					return *this;
+				}
+                ~node() { // delete children
+                    if(nullptr != _lc) {delete _lc;}
+                    if(nullptr != _rc) {delete _rc;}
+                }
+	        };
+	class iterator {
+		public:
+		node* pointer;
+	    queue<node*> nq;
+		void insert_inorder(node* root){
+            if(root == nullptr) {return;}
+            insert_inorder(root->_lc);
+            nq.push(root);
+            insert_inorder(root->_rc);
+	    }
 
-//******************************************************************************************************
-// 				PRE				
-//******************************************************************************************************
-
-	class preorder_iterator {
-	node* pointer_to_current_node;
-    queue<node*> nodesQ;
-	public:
         void insert_preorder(node* root){
-			// cout<< " ***  " << ++ ad<< endl;
-            if(nullptr ==root) return;
-            nodesQ.push(root);
+            if(nullptr ==root) {return;}
+            nq.push(root);
             // if(nullptr !=root->_lc)
-			insert_preorder(root->_lc);
+            insert_preorder(root->_lc);
             // if(nullptr !=root->_rc)
-			insert_preorder(root->_rc);
+            insert_preorder(root->_rc);
         }
-		preorder_iterator(node* ptr ){
-			// cout<< " in pre creation  " << endl;
-            insert_preorder(ptr);
-            pointer_to_current_node = nodesQ.front();
-            nodesQ.pop();
-			// cout<< " out of pre creation  " << endl;
-		}
-		T& operator*() const {
-			return pointer_to_current_node->_data;
-		}
-		T* operator->() const {
-			return &(pointer_to_current_node->_data);
-		}
-		preorder_iterator& operator++() {
-			if(nodesQ.empty()){
-                pointer_to_current_node = nullptr;
-                return *this;
-            }
-            pointer_to_current_node = nodesQ.front();
-            nodesQ.pop();
-            return *this;
-		}
 
-		// i++;
-		// Usually iterators are passed by value and not by const& as they are small.
-		const preorder_iterator operator++(int) {
-            if(nodesQ.empty()){
-                pointer_to_current_node = nullptr;
-                return *this;
-            }
-			preorder_iterator tmp= *this;
-			++this;
-			return tmp;
-		}
-
-		bool operator==(const preorder_iterator& rhs) const {
-			return pointer_to_current_node == rhs.pointer_to_current_node;
-		}
-
-		bool operator!=(const preorder_iterator& rhs) const {
-			return pointer_to_current_node != rhs.pointer_to_current_node;
-		}
-	 }; // END OF CLASS PREORDER ITER
-	preorder_iterator begin_preorder() {
-		return preorder_iterator(_root);
-	}
-	
-	preorder_iterator end_preorder() {
-		return preorder_iterator{nullptr};
-	}	
-
-
-//******************************************************************************************************
-// 				POST				
-//******************************************************************************************************
-	class postorder_iterator {
-	node* pointer_to_current_node;
-    queue<node*> nodesQ;
-
-	public:
         void insert_postorder(node* root){
-            if(!root) return;
+            if(root == nullptr) {return;}
             insert_postorder(root->_lc);
             insert_postorder(root->_rc);
-            nodesQ.push(root);
+            nq.push(root);
         }
-			postorder_iterator(node* ptr = nullptr){
-                insert_postorder(ptr);
-                pointer_to_current_node = nodesQ.front();
-                nodesQ.pop();
-		}
-		T& operator*() const {
-			return pointer_to_current_node->_data;
-			// we want to return the value in the node 
-		}
-
-		T* operator->() const {
-			return &(pointer_to_current_node->_data);
-		}
-
-		// postorder_iterator operator+( const int i){
-        //     postorder_iterator temp = &begin_postorder(this);
-			
-        //     for(int j = 0; j < i; j++){
-		// 		temp++;	
-		// 	}
-			
-		// 	pointer_to_current_node = temp;
-		// 	return temp;
-		// }
-		// ++i;
-		postorder_iterator& operator++() {
-			if(nodesQ.empty()){
-                pointer_to_current_node = nullptr;
-                return *this;
-            }
-            pointer_to_current_node = nodesQ.front();
-            nodesQ.pop();
-            return *this;
-		}
-
-
-		// i++;
-		// Usually iterators are passed by value and not by const& as they are small.
-		const postorder_iterator operator++(int) {
-			if(nodesQ.empty()){
-                pointer_to_current_node = nullptr;
-                return *this;
-            }
-			iterator tmp= *this;
-			++this;
-			return tmp;
-		}
-
-		bool operator==(const postorder_iterator& rhs) const {
-			return pointer_to_current_node == rhs.pointer_to_current_node;
-		}
-
-		bool operator!=(const postorder_iterator& rhs) const {
-			return pointer_to_current_node != rhs.pointer_to_current_node;
-		}
-	 }; // END OF CLASS PREORDER ITER
-	postorder_iterator begin_postorder() {
-		return postorder_iterator(_root);
-	}
-	
-	postorder_iterator end_postorder() {
-		return postorder_iterator{nullptr};
-	}
-
-    	
-	
-//******************************************************************************************************
-// 				IN				
-//******************************************************************************************************
-	class inorder_iterator {
-	node* pointer_to_current_node;
-    queue <node*> nodesQ;
-	public:
-		void insert_inorder(node* root){
-            if(!root) return;
-            insert_inorder(root->_lc);
-            nodesQ.push(root);
-            insert_inorder(root->_rc);
-        }
-        inorder_iterator(node* ptr = nullptr)
+        
+        iterator(node* root) : pointer(root){}
+	    
+        iterator(node* root, const int c){
+		// cout<< " in pre creation  " << endl;
+		// insert_preorder(ptr);
+		switch (c)
 		{
-            insert_inorder(ptr);
-            pointer_to_current_node = nodesQ.front();
-            nodesQ.pop();
-		}
-		T& operator*() const {
-			return pointer_to_current_node->_data;
-			// we want to return the value in the node 
-		}
+            case PRE:
+                insert_preorder(root);
+                break;
+            case POST:
+                insert_postorder(root);
+                break;
+            case IN:
+                insert_inorder(root);
+                break;
+            }
+            pointer = nq.front();
+            nq.pop();
+            // cout<< " out of pre creation  " << endl;
+        }
 
-		T* operator->() const {
-			return &(pointer_to_current_node->_data);
-		}
-		// ++i;
-		inorder_iterator& operator++() {
-			// this.pointer_to_current_node->_visited = true;
-			if(nodesQ.empty()){
-                pointer_to_current_node = nullptr;
+        T& operator*() const {
+            // if(pointer == nullptr) cout << " ****************************" << endl ; //return null;
+            return pointer->_data;
+        }
+
+        T& operator*(){
+            // if(pointer == nullptr) cout << " **************************** null" << endl ; //return null;
+            return pointer->_data;
+        }
+
+        T* operator->() const {
+            //         if(pointer == nullptr) return null;
+            return &(pointer->_data);
+        }
+
+        iterator& operator++() {
+            if(nq.empty()){
+                pointer = nullptr;
                 return *this;
             }
-            pointer_to_current_node = nodesQ.front();
-            nodesQ.pop();
+            pointer = nq.front();
+            nq.pop();
             return *this;
-		}
-
-		// i++;
-		// Usually iterators are passed by value and not by const& as they are small.
-		const inorder_iterator operator++(int) {
-			if(nodesQ.empty()){
-                pointer_to_current_node = nullptr;
-                return *this;
+        }
+	// i++;
+	// Usually iterators are passed by value and not by const& as they are small.
+        //const
+		 iterator operator++(int) {
+            iterator tmp = *this;
+            if(nq.empty()){
+                pointer = nullptr;
+                return tmp;
             }
-			iterator tmp= *this;
-			++this;
-			return tmp;
+            pointer = nq.front();
+            nq.pop();
+            return tmp;
+        }
+
+        bool operator==(const iterator& rhs) const {
+            // return pointer._data == rhs.pointer._data;
+            return rhs.pointer==this->pointer;
+        }
+        
+        bool operator!=(const iterator& rhs) const {
+            return rhs.pointer!=this->pointer;
+        }
+	}; // END OF CLASS PREORDER ITER
+	iterator begin_inorder() {
+		if(_root == nullptr) {
+			return iterator(nullptr);
 		}
+		return iterator{_root, IN};
+	}
 
-		bool operator==(const inorder_iterator& rhs) const {
-			return pointer_to_current_node == rhs.pointer_to_current_node;
+	iterator end_inorder() {
+		return iterator{nullptr};
+	}
+
+	iterator begin() {
+		if(_root == nullptr) {
+			return iterator(nullptr);
 		}
+		return iterator{_root, IN};
+	}
 
-		bool operator!=(const inorder_iterator& rhs) const {
-			return pointer_to_current_node != rhs.pointer_to_current_node;
+	iterator end() {
+		return iterator{nullptr};
+	}
+
+	iterator begin_preorder() {
+		if(_root == nullptr) {
+			return iterator(nullptr);
 		}
-	 }; // END OF CLASS PREORDER ITER
-	inorder_iterator begin_inorder() {
-		return inorder_iterator{_root};
-	}
-	
-	inorder_iterator end_inorder() {
-		return inorder_iterator{nullptr};
+		return iterator(_root, PRE);
 	}
 
-    inorder_iterator begin() {
-		return inorder_iterator{_root};
-	}
-	
-	inorder_iterator end() {
-		return inorder_iterator{nullptr};
+	iterator end_preorder() {
+		return iterator{nullptr};
 	}
 
-private:
+	iterator begin_postorder() {
+		if(_root == nullptr) {
+			return iterator(nullptr);
+		}
+		return iterator(_root, POST);
+	}
+
+	iterator end_postorder() {
+		return iterator{nullptr};
+	}
+
+
+	// private:
 	// fields
 	map< T, set <node* >> nodes;
-    node* _root; //, _left, _right; 
-public:	
+	node* _root; //, _left, _right; 
 
 
-	BinaryTree() : _root(nullptr) {
-		// cout<< "in creation" << endl;
-	}
+		BinaryTree() : _root(nullptr) {}
 
-	~BinaryTree() {
-		delete _root;
-	}
+		BinaryTree (const BinaryTree &bt) {
+			_root = new node(nullptr, bt._root->_data);
+			copy_con(_root, bt._root);
+		}
+        // BinaryTree(BinaryTree &&bt) noexcept {
+        //     _root = bt._root;
+        //     bt._root = nullptr;
+        // }
 
-	BinaryTree& add_root(const T& d)
-    {
-		// cout<< "in add root" << endl;
-		if(_root) {
-			nodes.erase(_root->_data);
+		BinaryTree(BinaryTree &&bt) noexcept {
+			if(_root == bt._root){return;}
+			if(_root == nullptr) {delete _root;}
+			_root = new node(nullptr, bt._root->_data);
+			copy_con(_root, bt._root);
+			bt._root = nullptr;
+		}
+		
+        void copy_con(node* n1, node* n2){
+			if(n2 == nullptr) {return;}
+			// n1->_data = n2->_data;
+			if(n2->_lc != nullptr){
+				n1->_lc = new node(n1, n2->_lc->_data);
+				copy_con(n1->_lc, n2->_lc);
+			}
+			if(n2->_rc != nullptr){
+				n1->_rc = new node(n1, n2->_rc->_data);
+				copy_con(n1->_rc, n2->_rc);
+			}
+		}
+        
+
+
+		BinaryTree& operator=(const BinaryTree bt){
+			if(this == &bt){
+				return *this;
+			}
+			if(_root != nullptr) {
+				delete _root;
+			}
+			if(bt._root!= nullptr) {
+				_root = new node(nullptr, bt._root->_data);
+				copy_con(_root, bt._root);
+			}
+			return *this;
+		}
+
+		BinaryTree& operator=(BinaryTree && bt)noexcept{
+			if(_root == bt._root){return *this;}
+			if(_root == nullptr) {delete _root;}
+			_root = new node(nullptr, bt._root->_data);
+			copy_con(_root, bt._root);
+			bt._root = nullptr;
+			return *this;
+		}
+
+		~BinaryTree() noexcept {
+			if(_root != nullptr){
+				delete _root;
+			}
+		}
+
+		BinaryTree& add_root(T d)
+		{
+			// cout<< "in add root" << endl;
+			if(_root != nullptr) {
+				nodes.erase(_root->_data);
+				nodes[d].insert(_root);
+				_root->_data = d;
+				return *this;
+			}
+			_root = new node(nullptr, d);
 			nodes[d].insert(_root);
-			_root->_data = d;
+			// cout<< "out of add root" << endl;
 			return *this;
 		}
-		_root = new node(nullptr, d);
-		nodes[d].insert(_root);
-		// cout<< "out of add root" << endl;
-		return *this;
-	}
 
-	BinaryTree& add_left(T df, T d) {
-		// cout<< "in add left" << endl;
-		// cout<< "	father: " << df << " child: " << d << endl;
-		if(nodes.count(df) == 0){
-			throw std::invalid_argument{" doesn't have this node in the tree"};
-		}
-		node* f;
-		for(node * n: nodes.at(df)){
-			f = n;
-			break;
-		}
-		if(f->_lc) {
-			nodes.erase(f->_lc->_data);
-			nodes[d].insert(f->_lc);
-			node * child = f->_lc;
-			child->_data = d;
+		BinaryTree& add_left(T df, T d) {
+			// cout<< "in add left" << endl;
+			// cout<< "	father: " << df << " child: " << d << endl;
+			if(nodes.count(df) == 0){
+				throw std::invalid_argument{" doesn't have this node in the tree"};
+			}
+			// node* f = new node(_root, _root->_data);
+			for(node * f: nodes.at(df)){
+				// node* f = n;
+
+				if(f->_lc != nullptr) {
+					nodes.erase(f->_lc->_data);
+					nodes[d].insert(f->_lc);
+					node * child = f->_lc;
+					child->_data = d;
+					return *this;
+				}
+				f->_lc =  new node(f, d);
+				nodes[d].insert(f->_lc);
+				return *this;
+				break;
+			}
 			return *this;
 		}
-		f->_lc =  new node(f, d);
-		nodes[d].insert(f->_lc);    
-		return *this;
-	}
 
-	BinaryTree& add_right(T df, T d) {
-		if(nodes.count(df) == 0){
-			throw std::invalid_argument{" doesn't have this node in the tree"};
-		}
-		node* f;
-		for(node * n: nodes.at(df)){
-			f = n;
-			break;
-		}
-		if(f->_rc) {
-			nodes.erase(f->_rc->_data);
-			nodes[d].insert(f->_rc);
-			f->_rc->_data = d;
+		BinaryTree& add_right(T df, T d) {
+			if(nodes.count(df) == 0){
+				throw std::invalid_argument{" doesn't have this node in the tree"};
+			}
+			// node* f = new node(_root->_data, _root->_data);
+			for(node * n: nodes.at(df)){
+				node* f = n;
+
+				if(f->_rc != nullptr) {
+					nodes.erase(f->_rc->_data);
+					nodes[d].insert(f->_rc);
+					f->_rc->_data = d;
+					return *this;
+				}
+				f->_rc =  new node(f, d);
+				nodes[d].insert(f->_rc);
+				// if(f == _right){
+					// 	_right = np;
+				// }`
+				return *this;
+				break;
+			}
 			return *this;
 		}
-		f->_rc =  new node(f, d); 	
-		nodes[d].insert(f->_rc);
-		// if(f == _right){
-		// 	_right = np;
-		// }`
-		return *this;
-    }
-    friend std::ostream& operator <<	(std::ostream &os, const BinaryTree<T> &bt){
-        return os  << "[" << "ss" << "]";
-    }
+		
+        friend std::ostream& operator <<	(std::ostream &os, const BinaryTree<T> &bt){
+			return os  << "[" << "ss" << "]";
+		}
+	}; 
+};
 
-
-}; 
- };
